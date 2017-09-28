@@ -2,21 +2,41 @@
 # ------------------------------------------
 # Redhat RHN to RHSM migration tool
 #
-# Version:	
-# Last Edited: 	September 29, 2017
-# Last Editor: 	
+# Version:	1.6
+# Last Edited: 	September 29, 2017 	
 # Last Note:	Added pre-check logic
+#
+# Creator: 	xiphos71
 # ------------------------------------------
+#
+# Notes:
+#
+# This tools largly automates the migration process from a RedHat Satellite 5 environment to a Satellite 6 environment.
+# Using some pretty basic logic (assuming Redhat 5 and 6 hosts in a dev, test, prod environment) and Expect, once you
+# fill in the pertinent information like Satellite hostname, activation keys, and user credentials, the script will
+# run without further interaction, making it useful to run across a large number of servers using some end-point management
+# tool.
+#
+# WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
+#
+# This tool IS NOT supported by RedHat! ...or me for that matter... 
+# 
+# RedHat's scripts like Subscription-Manager and rhn-migrate-classic-to-rhsm which each have their own seperate 
+# syntax and support, but using them along with this script without proper knowledge to how Redhat Satellite and 
+# package management systems work is not a good thing. I'm not responsible for any resulting breakage.
+#
+# WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
+
 
 #
-# Here are some variables for platform and key determination
+# Firstly, let's set some variables for platform and key determination. These are used later on.
 #
 
 	OSPLAT=$(uname -r)
 	OSNAME=$(uname -n)
 
 #
-# precheck checks...these can be commented out
+# Pre-check logic...does this script need to run?
 #
 	clear;
 	echo "";
@@ -39,7 +59,7 @@
 		exit 1;
 	fi
 #
-# Pull down RHSM Satellite 6 certificate.
+# Pull down RHSM Satellite 6 certificate. Obviously this assumes you have a licensed Sat6 server setup
 #
 	clear;
 	echo "Pulling down the new Satellite 6 certificate.";
@@ -90,6 +110,7 @@
 			}
                         expect { sleep 10 }
 			"
+			# clean up yum and attempt to install the katello-agent (remote management)
                         /usr/bin/yum clean all;
 			/usr/bin/yum install -y katello-agent;
 		elif [[ $OSNAME == *"prod"* ]] || [[ $OSNAME == *"OTHER LOGIC AS NEEDED"* ]]; then
@@ -251,4 +272,3 @@
 	else # all out of answers...
 	echo "OS could not be determined. Please verify OS and register manually.";
 fi
-
